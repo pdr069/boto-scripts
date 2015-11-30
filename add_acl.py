@@ -24,8 +24,6 @@ rule = {
 }
 
 
-
-
 def main(access_key, secret_key, path, region, instance, cidr, protocol, icmp_type,
     icmp_code, start_port, end_port, vpc_id, rule_number):
     """
@@ -43,8 +41,6 @@ def main(access_key, secret_key, path, region, instance, cidr, protocol, icmp_ty
         print "Unable to connect to region with credentials."
         raise SystemExit(1)
 
-    print "\nConnection: {0}\n".format(conn)
-
     rule['rule_number'] = rule_number
     rule['protocol'] = protocol
     rule['cidr_block'] = cidr
@@ -53,19 +49,17 @@ def main(access_key, secret_key, path, region, instance, cidr, protocol, icmp_ty
     rule['port_range_from'] = start_port
     rule['port_range_to'] = end_port
 
-    print rule
 
-    if protocol == 'list':
+    if protocol == 'List':
+        print "VPC List:\n========="
         vpcs = conn.get_all_vpcs()
         for i in vpcs:
             try:
-                print i, i.tags['Name'], i.cidr_block
+                print "Name: {0}; Tags: {1}; Subnet: {2}".format(i, i.tags['Name'], i.cidr_block)
             except:
-                print i, 'No Tags Available', i.cidr_block
-
-    conn.close()
-    raise SystemExit(0)
-
+                print "Name: {0}; Tags: No Tags Available; Subnet: {1}".format(i, i.cidr_block)
+        conn.close()
+        raise SystemExit(0)
 
 
 if __name__ == "__main__":
@@ -84,12 +78,12 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--end-port', default=65535, help="Port range ending point (default is 65535).")
     parser.add_argument('-v', '--vpc-id', default=None, help="VPC id to ACL to.")
     parser.add_argument('-R', '--rule-number', default=32767, help="Rule number (1-32767), default is 32767.")
-    parser.add_argument('-l', '--list', default=1, help="List available vpcs.")
+    parser.add_argument('-l', '--list', action="store_true", help="List available vpcs.")
 
     args = parser.parse_args()
     
     if args.list:
-        args.protocol='list'
+        args.protocol='List'
         main(access_key=args.access_key, secret_key=args.secret_key, path=args.path, region=args.region, 
             instance=args.instance, cidr=args.cidr, protocol=args.protocol, icmp_type=args.icmp_type, 
             icmp_code=args.icmp_code, start_port=args.start_port, end_port=args.end_port, vpc_id=args.vpc_id,
